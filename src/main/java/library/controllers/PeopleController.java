@@ -1,6 +1,7 @@
 package library.controllers;
 
 import jakarta.validation.Valid;
+import library.DAO.BookDAO;
 import library.DAO.PersonDAO;
 import library.Models.Person;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/people")
 public class PeopleController {
     private final PersonDAO personDAO;
-
+    private final BookDAO bookDAO;
     @Autowired
-    public PeopleController(PersonDAO personDAO) {
+    public PeopleController(PersonDAO personDAO, BookDAO bookDAO) {
         this.personDAO = personDAO;
+        this.bookDAO = bookDAO;
     }
 
     @GetMapping()
@@ -28,6 +30,7 @@ public class PeopleController {
     @GetMapping("/{id}")
     public String person(@PathVariable("id") long id, Model model){
         model.addAttribute("person", personDAO.getElementById(id));
+        model.addAttribute("books", bookDAO.getBooksOfPerson(id));
         return "people/person";
     }
 

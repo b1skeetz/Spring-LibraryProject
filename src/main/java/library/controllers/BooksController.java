@@ -2,7 +2,9 @@ package library.controllers;
 
 import jakarta.validation.Valid;
 import library.DAO.BookDAO;
+import library.DAO.PersonDAO;
 import library.Models.Book;
+import library.Models.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,10 +15,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/books")
 public class BooksController {
     private final BookDAO bookDAO;
+    private final PersonDAO personDAO;
 
     @Autowired
-    public BooksController(BookDAO bookDAO) {
+    public BooksController(BookDAO bookDAO, PersonDAO personDAO) {
         this.bookDAO = bookDAO;
+        this.personDAO = personDAO;
     }
 
     @GetMapping
@@ -26,8 +30,9 @@ public class BooksController {
     }
 
     @GetMapping("/{id}")
-    public String book(@PathVariable("id") long id, Model model) {
+    public String book(@PathVariable("id") long id, Model model, @ModelAttribute("person") Person person) {
         model.addAttribute("book", bookDAO.getElementById(id));
+        model.addAttribute("people", personDAO.getAll());
         return "books/book";
     }
 
@@ -65,5 +70,17 @@ public class BooksController {
         }
         bookDAO.save(book);
         return "redirect:/books";
+    }
+
+    @PatchMapping("/{id}/addReader")
+    public String addReader(@ModelAttribute("person") Person person, @PathVariable("id") long id){
+        bookDAO.addReader(id, person.getPersonId());
+        return "redirect:/books/book"; // HTTP Status 400 - Bad Request
+    }
+
+    @PatchMapping("/{id}/removeReader")
+    public String removeReader(@PathVariable("id") long id){
+        bookDAO.removeReader(id);
+        return "redirect:/books/book";
     }
 }
