@@ -31,6 +31,7 @@ public class PeopleController {
     public String person(@PathVariable("id") long id, Model model){
         model.addAttribute("person", personDAO.getElementById(id));
         model.addAttribute("books", bookDAO.getBooksOfPerson(id));
+        model.addAttribute("condition", !bookDAO.getBooksOfPerson(id).isEmpty());
         return "people/person";
     }
 
