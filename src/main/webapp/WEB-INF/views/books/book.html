@@ -7,27 +7,29 @@
 <body>
 
 <p th:text="${book.getName()} + ', ' + ${book.getAuthor()} + ', ' + ${book.getYearOfRelease()}"/>
-<div th:if="${book.personId == null}">
-    <form th:method="PATCH" th:action="@{/books/{id}/addReader(id = ${book.getBookId()})}">
-        <label for="people">Выберите человека: </label>
-        <select th:object="${person}" th:field="*{personId}" id="people">
-            <option th:each="person : ${people}" th:value="${person.getPersonId()}"
-                    th:text="${person.getSelfIdentity()}"/>
-        </select>
-        <input type="submit" value="Назначить книгу">
-    </form>
+<div>
+    <div th:if="${!condition}"> <!--false-->
+        <form th:method="POST" th:action="@{/books/{id}/add(id = ${book.getBookId()})}">
+            <label for="people">Выберите человека: </label>
+            <select th:object="${person}" th:field="*{personId}" id="people">
+                <option th:each="person : ${people}" th:value="${person.getPersonId()}"
+                        th:text="${person.getSelfIdentity()}"/>
+            </select>
+            <input type="submit" value="Назначить книгу">
+        </form>
+    </div>
+    <div th:if="${condition}"> <!--true-->
+        <p th:text="'Книга сейчас у: ' + ${personWithBook.selfIdentity}"/>
+        <form th:method="POST" th:action="@{/books/{id}/remove(id = ${book.getBookId()})}">
+            <input type="submit" value="Освободить книгу">
+        </form>
+    </div>
 </div>
-<div th:if="${book.personId != person.getPersonId}">
-    <p th:text="'Книга сейчас у: ' + ${person.selfIdentity}"/>
-    <br>
-    <form th:method="PATCH" th:action="@{/books/{id}/removeReader(id = ${book.getBookId()})}">
-        <input type="submit" value="Освободить книгу">
-    </form>
-</div>
-
 <hr>
 
-<a th:href="@{/books/{id}/edit(id = ${book.getBookId()})}">Редактировать</a>
+<form th:method="GET" th:action="@{/books/{id}/edit(id = ${book.getBookId()})}">
+    <input type="submit" value="Редактировать">
+</form>
 
 <form th:method="DELETE" th:action="@{/books/{id}(id = ${book.getBookId()})}">
     <input type="submit" value="Удалить"/>

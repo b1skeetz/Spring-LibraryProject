@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Все книги</title>
+    <link rel="stylesheet" th:href="@{../../../../resources/static/css/booksStyle.css}">
 </head>
 <body>
-    <div th:each="book : ${books}">
-        <a th:text="${book.getName()} + ', ' + ${book.getAuthor()} + ', ' + ${book.getYearOfRelease()}"
-           th:href="@{/books/{id}(id = ${book.getBookId()})}"/>
-    </div>
-    <br>
-    <hr>
-    <a href="/books/new">Добавить книгу</a>
+<div th:each="book : ${books}" th:class="'is'+${book.personId == null ? 'NotPicked' : 'Picked'}">
+    <a th:text="${book.getName()} + ', ' + ${book.getAuthor()} + ', ' + ${book.getYearOfRelease()}"
+       th:href="@{/books/{id}(id = ${book.getBookId()})}"/>
+</div>
+
+<br>
+<hr>
+
+<a href="/books/new">Добавить книгу</a>
+
 </body>
 </html>

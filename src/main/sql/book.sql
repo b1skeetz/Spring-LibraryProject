@@ -4,7 +4,7 @@ create table books(
     person_id int8,
     name varchar(50) not null,
     author varchar(100) not null,
-    year_of_release int4 check(year_of_release > 0 and year_of_release < 2024),
+    year_of_release int4 check(year_of_release > 0 and year_of_release < 2025),
     foreign key (person_id) references people (person_id) on delete cascade
 );
 

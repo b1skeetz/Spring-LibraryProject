@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import library.DAO.BookDAO;
 import library.DAO.PersonDAO;
 import library.Models.Person;
+import library.util.PersonValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,10 +16,12 @@ import org.springframework.web.bind.annotation.*;
 public class PeopleController {
     private final PersonDAO personDAO;
     private final BookDAO bookDAO;
+    private final PersonValidator personValidator;
     @Autowired
-    public PeopleController(PersonDAO personDAO, BookDAO bookDAO) {
+    public PeopleController(PersonDAO personDAO, BookDAO bookDAO, PersonValidator validator) {
         this.personDAO = personDAO;
         this.bookDAO = bookDAO;
+        this.personValidator = validator;
     }
 
     @GetMapping()
@@ -28,7 +31,7 @@ public class PeopleController {
     }
 
     @GetMapping("/{id}")
-    public String person(@PathVariable("id") long id, Model model){
+    public String person(@PathVariable("id") Long id, Model model){
         model.addAttribute("person", personDAO.getElementById(id));
         model.addAttribute("books", bookDAO.getBooksOfPerson(id));
         model.addAttribute("condition", !bookDAO.getBooksOfPerson(id).isEmpty());
@@ -36,14 +39,16 @@ public class PeopleController {
     }
 
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable("id") long id, Model model){
+    public String edit(@PathVariable("id") Long id, Model model){
         model.addAttribute("person", personDAO.getElementById(id));
         return "people/edit";
     }
 
     @PatchMapping("/{id}")
     public String update(@ModelAttribute("person") @Valid Person person, BindingResult bindingResult,
-                         @PathVariable("id") long id){
+                         @PathVariable("id") Long id){
+        personValidator.validate(person, bindingResult);
+
         if(bindingResult.hasErrors()){
             return "people/edit";
         }
@@ -52,7 +57,7 @@ public class PeopleController {
     }
 
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable("id") long id){
+    public String delete(@PathVariable("id") Long id){
         personDAO.delete(id);
         return "redirect:/people";
     }
@@ -64,6 +69,8 @@ public class PeopleController {
 
     @PostMapping
     public String create(@ModelAttribute("person") @Valid Person person, BindingResult bindingResult){
+        personValidator.validate(person, bindingResult);
+
         if(bindingResult.hasErrors()){
             return "people/add";
         }

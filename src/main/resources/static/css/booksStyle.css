@@ -1,0 +1,16 @@
+*{
+    margin: 0;
+    padding: 0;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.isPicked > a{
+    color: cadetblue;
+    text-decoration: none;
+}
+
+.isNotPicked > a{
+    color: chocolate;
+    text-decoration: none;
+}

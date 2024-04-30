@@ -11,6 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
+
 @Controller
 @RequestMapping("/books")
 public class BooksController {
@@ -29,22 +31,24 @@ public class BooksController {
         return "books/index";
     }
 
-    @GetMapping("/{id}")
-    public String book(@PathVariable("id") long id, Model model, @ModelAttribute("person") Person person) {
+    @GetMapping("/{id}") // I am here
+    public String book(@PathVariable("id") Long id, Model model, @ModelAttribute("person") Person person) {
         model.addAttribute("book", bookDAO.getElementById(id));
         model.addAttribute("people", personDAO.getAll());
+        model.addAttribute("personWithBook", personDAO.getPersonWithBook(id).stream().findAny().orElse(new Person()));
+        model.addAttribute("condition", personDAO.getPersonWithBook(id).isPresent());
         return "books/book";
     }
 
     @GetMapping("/{id}/edit")
-    public String edit(@PathVariable("id") long id, Model model) {
+    public String edit(@PathVariable("id") Long id, Model model) {
         model.addAttribute("book", bookDAO.getElementById(id));
         return "books/edit";
     }
 
     @PatchMapping("/{id}")
     public String update(@ModelAttribute("book") @Valid Book book, BindingResult bindingResult,
-                         @PathVariable("id") long id) {
+                         @PathVariable("id") Long id) {
         if(bindingResult.hasErrors()){
             return "books/edit";
         }
@@ -53,7 +57,7 @@ public class BooksController {
     }
 
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable long id) {
+    public String delete(@PathVariable("id") Long id) {
         bookDAO.delete(id);
         return "redirect:/books";
     }
@@ -72,15 +76,15 @@ public class BooksController {
         return "redirect:/books";
     }
 
-    @PatchMapping("/{id}/addReader")
-    public String addReader(@ModelAttribute("person") Person person, @PathVariable("id") long id){
+    @PostMapping("/{id}/add")
+    public String addReader(@ModelAttribute("person") Person person, @PathVariable("id") Long id){
         bookDAO.addReader(id, person.getPersonId());
-        return "redirect:/books/book"; // HTTP Status 400 - Bad Request
+        return "redirect:/books/" + id;
     }
 
-    @PatchMapping("/{id}/removeReader")
-    public String removeReader(@PathVariable("id") long id){
+    @PostMapping("/{id}/remove")
+    public String removeReader(@PathVariable("id") Long id){
         bookDAO.removeReader(id);
-        return "redirect:/books/book";
+        return "redirect:/books/" + id;
     }
 }
